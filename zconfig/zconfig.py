@@ -1,7 +1,7 @@
 import configparser
 import os
 import ast
-from zacon.constant import *
+from zconfig.constant import *
 
 
 class ServiceConfig():

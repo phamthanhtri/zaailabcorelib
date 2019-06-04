@@ -1,1 +1,1 @@
-from zacon.zacon import ServiceConfig
+from zconfig.zconfig import ServiceConfig
