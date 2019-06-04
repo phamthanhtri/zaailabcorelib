@@ -1,1 +1,1 @@
-from zconfig.zconfig import ServiceConfig
+from zaailabcorelib.zconfig.zconfig import ServiceConfig

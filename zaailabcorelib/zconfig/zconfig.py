@@ -1,7 +1,7 @@
 import configparser
 import os
 import ast
-from zconfig.constant import *
+from zaailabcorelib.zconfig.constant import *
 
 
 class ServiceConfig():
