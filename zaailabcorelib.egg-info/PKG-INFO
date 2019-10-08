@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: zaailabcorelib
+Version: 0.1.6
+Summary: A common config for every project
+Home-page: https://github.com/phamthanhtri/zaailabcorelib
+Author: tript
+Author-email: thanhtri2502@gmail.com
+License: UNKNOWN
+Description: # zaailabcorelib
+        python3 setup.py sdist bdist_wheel
+        python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*  --verbose
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
