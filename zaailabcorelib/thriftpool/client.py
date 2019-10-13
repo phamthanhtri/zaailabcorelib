@@ -29,14 +29,14 @@ class Client(object):
                  host, port,
                  pool_size=ConnectionPool.DEFAULT_POOL_SIZE,
                  retries = 3,
-                 async = False,
+                 asyn = False,
                  network_timeout = ConnectionPool.DEFAULT_NETWORK_TIMEOUT,
                  debug = False):
         self.host = host
         self.port = port
         self.debug = debug
         self.retries = retries
-        self._connection_pool = ConnectionPool(host, port, iface_cls, async=async, size=pool_size, network_timeout=network_timeout)
+        self._connection_pool = ConnectionPool(host, port, iface_cls, asyn=asyn, size=pool_size, network_timeout=network_timeout)
         self._iface_cls = iface_cls
         #inject all methods defined in the thrift Iface class
         for m in inspect.getmembers(self._iface_cls,predicate = lambda x: inspect.isfunction(x) or inspect.ismethod(x)):
