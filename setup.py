@@ -5,12 +5,14 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+
 setuptools.setup(
     name="zaailabcorelib",
     version="0.1.8",
-    author="tript",
+    author="ailabteam",
     author_email="thanhtri2502@gmail.com",
-    description="A common config for every project",
+    include_package_data=True,
+    description="A Useful tools inside Zalo AILab Team",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/phamthanhtri/zaailabcorelib",
@@ -20,4 +22,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    tests_require=["pytest",
+                    "mock"],
+    test_suite="pytest",
 )
