@@ -8,7 +8,7 @@ class ConnectionPool(object):
     DEFAULT_NETWORK_TIMEOUT = 0
     DEFAULT_POOL_SIZE = 100
 
-    def __init__(self, host, port, iface_cls, size=DEFAULT_POOL_SIZE, async=False, network_timeout=DEFAULT_NETWORK_TIMEOUT):
+    def __init__(self, host, port, iface_cls, size=DEFAULT_POOL_SIZE, asyn=False, network_timeout=DEFAULT_NETWORK_TIMEOUT):
         self.host = host
         self.port = port
         self.iface_cls = iface_cls
@@ -17,7 +17,7 @@ class ConnectionPool(object):
         self.size = size
 
         self._closed = False
-        self._async = async
+        self._async = asyn
         if self._async:
             import gevent.queue
             try:

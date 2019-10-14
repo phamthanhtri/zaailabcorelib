@@ -29,6 +29,17 @@ class ZConfig():
             self.conf = self._staging()
         elif env == 'PRODUCTION':
             self.conf = self._production()
+        
+        # Automatically load all config from <config>.ini
+        self.ARGS = self._load_all_config()
+
+    def _load_all_config(self):
+        conf_args = {}
+        for sec_name in self.conf.keys():
+            for val_name in self.conf[sec_name]:
+                conf_args[sec_name + '@' + val_name] = eval(self.conf[sec_name][val_name])
+        return conf_args
+
 
     def _development(self):
         configParser = configparser.ConfigParser()

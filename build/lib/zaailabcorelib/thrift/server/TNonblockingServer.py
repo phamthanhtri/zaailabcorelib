@@ -158,6 +158,7 @@ class Connection(object):
                     self.received.append(self._reading)
                     self._rbuf = self._rbuf[self._reading.end:]
                     self._reading = Message(0, 4, True)
+                    done = True
             first = False
             if self.received:
                 self.status = WAIT_PROCESS
