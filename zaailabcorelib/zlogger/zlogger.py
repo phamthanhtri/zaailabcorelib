@@ -74,9 +74,6 @@ class Zlogger():
             backupCount=10)
         logger = logging.getLogger('MainLogger_{}'.format(logger_name))
         logger.propagate = False
-        if logger_name == 'debug':
-            logger_handler.setLevel(logging.DEBUG)
-
         formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(filename)s-%(funcName)s-%(lineno)04d | %(message)s')
         logger_handler.setFormatter(formatter)
         logger.addHandler(logger_handler)
@@ -112,7 +109,7 @@ class Zlogger():
         self.error_logger.error(msg)
 
     def debug(self, msg):
-        self.debug_logger.debug(msg, exc_info=1)
+        self.debug_logger.info(msg)
 
     def exception(self, msg):
         self.error_logger.exception(msg)
