@@ -1,3 +1,4 @@
+MANIFEST.in
 README.md
 setup.py
 zaailabcorelib/__init__.py
@@ -42,6 +43,7 @@ zaailabcorelib/zconfig/constant.py
 zaailabcorelib/zconfig/zconfig.py
 zaailabcorelib/zlogger/__init__.py
 zaailabcorelib/zlogger/constant.py
+zaailabcorelib/zlogger/logging.conf
 zaailabcorelib/zlogger/zlogger.py
 zaailabcorelib/zserver/__init__.py
 zaailabcorelib/zserver/thrift/THandlerPoolServer.py
