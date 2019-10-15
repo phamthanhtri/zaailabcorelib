@@ -19,3 +19,4 @@ def get_tf_env(gpu_id, mem_fraction):
     config = tf.ConfigProto()
     config.gpu_options.per_process_gpu_memory_fraction = float(mem_fraction)
     return tf, config
+

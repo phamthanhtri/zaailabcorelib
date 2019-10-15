@@ -8,14 +8,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="zaailabcorelib",
-    version="0.1.8.1",
+    version="0.1.8.2",
     author="ailabteam",
-    author_email="thanhtri2502@gmail.com",
+    author_email="thanhtri2502@gmail.com | congvm.it@gmail.com",
     include_package_data=True,
     description="A Useful tools inside Zalo AILab Team",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/phamthanhtri/zaailabcorelib",
+    # url="https://github.com/phamthanhtri/zaailabcorelib",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
