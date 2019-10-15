@@ -13,7 +13,7 @@ class ZConfig():
             ZConfig.__instance = ZConfig()
         return ZConfig.__instance
 
-    def __init__(self, config_dir='./conf'):
+    def __init__(self, config_dir='./conf', auto_load=True):
         self._config_dir = config_dir
         self._getConfigDirectory()
         try:
@@ -22,7 +22,7 @@ class ZConfig():
         except:
             raise ValueError(
                 "The environment param `SERVICE_ENV_SETTING` need to be assigned as: DEVELOPMENT | PRODUCTION | STAGING")
-
+            
         if env == 'DEVELOPMENT':
             self.conf = self._development()
         elif env == 'STAGING':
@@ -31,13 +31,17 @@ class ZConfig():
             self.conf = self._production()
         
         # Automatically load all config from <config>.ini
-        self.ARGS = self._load_all_config()
+        if auto_load:
+            self.ARGS = self._load_all_config()
 
     def _load_all_config(self):
         conf_args = {}
         for sec_name in self.conf.keys():
             for val_name in self.conf[sec_name]:
-                conf_args[sec_name + '@' + val_name] = eval(self.conf[sec_name][val_name])
+                try:
+                    conf_args[sec_name + '@' + val_name] = ast.literal_eval(self.conf[sec_name][val_name])
+                except:
+                    conf_args[sec_name + '@' + val_name] = str(self.conf[sec_name][val_name])
         return conf_args
 
 

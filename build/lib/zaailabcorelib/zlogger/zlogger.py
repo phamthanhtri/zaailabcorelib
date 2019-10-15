@@ -1,6 +1,7 @@
 import configparser
 import logging.config
 import os
+import ast
 from logging.handlers import TimedRotatingFileHandler
 
 from zaailabcorelib.zlogger.constant import DEV_FILENAME, PROD_FILENAME, STAG_FILENAME
@@ -50,8 +51,8 @@ class Zlogger():
 
         if self.log_dir == "":
             raise ValueError('Error: `log_dir` is expected to be NOT EMPTY')
-
-        self.log_dir = eval(self.log_dir)  # convert it to str
+        
+        self.log_dir = str(self.log_dir)  # convert it to str
         if not os.path.exists(self.log_dir):
             os.mkdir(self.log_dir)
 
