@@ -1,0 +1,34 @@
+2019-10-14 11:14:32,665 | ERROR    | zlogger.py-exception-0120 | name 'x' is not defined
+Traceback (most recent call last):
+  File "<ipython-input-13-80dd109aeaeb>", line 2, in <module>
+    x/0
+NameError: name 'x' is not defined
+Traceback (most recent call last):
+  File "<ipython-input-13-80dd109aeaeb>", line 2, in <module>
+    x/0
+NameError: name 'x' is not defined
+2019-10-14 11:14:52,765 | ERROR    | zlogger.py-exception-0120 | name 'x' is not defined
+Traceback (most recent call last):
+  File "<ipython-input-14-9e8df37f842d>", line 2, in <module>
+    x/0
+NameError: name 'x' is not defined
+2019-10-14 11:24:16,960 | ERROR    | zlogger.py-exception-0120 | name 'x' is not defined
+Traceback (most recent call last):
+  File "<ipython-input-5-9e8df37f842d>", line 2, in <module>
+    x/0
+NameError: name 'x' is not defined
+2019-10-14 13:10:59,564 | ERROR    | zlogger.py-exception-0115 | name 'x' is not defined
+Traceback (most recent call last):
+  File "<ipython-input-6-9e8df37f842d>", line 2, in <module>
+    x/0
+NameError: name 'x' is not defined
+2019-10-14 13:12:15,873 | ERROR    | zlogger.py-exception-0115 | name 'x' is not defined
+Traceback (most recent call last):
+  File "<ipython-input-4-9e8df37f842d>", line 2, in <module>
+    x/0
+NameError: name 'x' is not defined
+2019-10-14 13:13:10,892 | ERROR    | zlogger.py-exception-0115 | name 'x' is not defined
+Traceback (most recent call last):
+  File "<ipython-input-5-9e8df37f842d>", line 2, in <module>
+    x/0
+NameError: name 'x' is not defined
