@@ -1,9 +1,11 @@
 '''https://medium.com/google-cloud/optimizing-tensorflow-models-for-serving-959080e9ddbf
 '''
+
+import tensorflow as tf
+from keras import backend as K
 from tensorflow.tools.graph_transforms import TransformGraph
 from tensorflow.python import ops
 import os
-import tensorflow as tf
 
 def get_size(model_dir, model_file='saved_model.pb'):
     '''Get size of graph model'''
@@ -74,9 +76,75 @@ TRANSFORMS = [
     'fold_batch_norms'
 ]
 
+
+
+
+
+def freeze_session(session, keep_var_names=None, output_names=None, clear_devices=True):
+    """
+    Freezes the state of a session into a pruned computation graph.
+
+    Creates a new computation graph where variable nodes are replaced by
+    constants taking their current value in the session. The new graph will be
+    pruned so subgraphs that are not necessary to compute the requested
+    outputs are removed.
+    @param session The TensorFlow session to be frozen.
+    @param keep_var_names A list of variable names that should not be frozen,
+                          or None to freeze all the variables in the graph.
+    @param output_names Names of the relevant graph outputs.
+    @param clear_devices Remove the device directives from the graph for better portability.
+    @return The frozen graph definition.
+    """
+    from tensorflow.python.framework.graph_util import convert_variables_to_constants
+    graph = session.graph
+    with graph.as_default():
+        freeze_var_names = list(set(v.op.name for v in tf.global_variables()).difference(keep_var_names or []))
+        output_names = output_names or []
+        output_names += [v.op.name for v in tf.global_variables()]
+        # Graph -> GraphDef ProtoBuf
+        input_graph_def = graph.as_graph_def()
+        if clear_devices:
+            for node in input_graph_def.node:
+                node.device = ""
+        frozen_graph = convert_variables_to_constants(session, input_graph_def,
+                                                      output_names, freeze_var_names)
+        return frozen_graph
+    
+
+def convert_h5df_to_pb(folder_to_save, model_name, session, model, keep_var_names=None, output_names=None):
+    if not os.path.isdir(folder_to_save):
+        os.makedirs(folder_to_save)
+    
+    frozen_graph = freeze_session(session,
+                                  output_names=[out.op.name for out in model.outputs])
+    tf.train.write_graph(frozen_graph, 
+                         folder_to_save, 
+                         model_name, 
+                         as_text=False)
+    print('Saved model to {} with name `{}`'.format(folder_to_save, model_name))
+    
+
+# Example
+# import tensorflow as tf
+# import keras
+# import keras.backend as K
+
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+# # Config Device
+# config = tf.ConfigProto()
+# config.gpu_options.per_process_gpu_memory_fraction = 0.3
+# sess = tf.Session(config=config)
+# set_session(sess)
+
+# # Load keras model
+# model_dir = ""
+# model = keras.load_model(filepath=model_dir, compile=False)
+# convert_h5df_to_pb("freeze_model", "model.pb", K.get_session(), model)
+
 def main():
     '''Example'''   
-
     # Optimize graph using TransformGraph 
     optimize_graph('client', 'motorbike_classification_inception_net_128_v4_e36.pb', 
                     TRANSFORMS, 
