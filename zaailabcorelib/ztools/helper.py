@@ -13,10 +13,13 @@ def get_tf_env(gpu_id, mem_fraction):
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
         
     import tensorflow as tf
-    if tf.__version__.split('.')[0] == '2':
-        tf = tf.compat.v1
+    # if tf.__version__.split('.')[0] == '2':
+    #     tf = tf.compat.v1
         
     config = tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = float(mem_fraction)
+    if mem_fraction == 0:
+        config.gpu_options.allow_growth = True
+    else:
+        config.gpu_options.per_process_gpu_memory_fraction = float(mem_fraction)
     return tf, config
 

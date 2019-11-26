@@ -1,6 +1,6 @@
-from thrift.transport import TTransport
-from thrift.transport import TSocket
-from thrift.protocol import TBinaryProtocol
+from zaailabcorelib.thrift.transport import TTransport
+from zaailabcorelib.thrift.transport import TSocket
+from zaailabcorelib.thrift.protocol import TBinaryProtocol
 
 #Thrift connection pool
 class ConnectionPool(object):

@@ -53,7 +53,7 @@ class Client(object):
         return __thrift_proxy
 
     def __thrift_call__(self, method, *args):
-        attempts_left = self.retries#self._connection_pool.size + 1
+        attempts_left = self.retries #self._connection_pool.size + 1
         result = None
         while True:
             conn = self._connection_pool.get_connection()
