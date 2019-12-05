@@ -5,7 +5,6 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-
 setuptools.setup(
     name="zaailabcorelib",
     version="0.1.8.3",
@@ -21,7 +20,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    tests_require=["pytest",
-                    "mock"],
+    tests_require=["pytest", "mock"],
     test_suite="pytest",
 )
