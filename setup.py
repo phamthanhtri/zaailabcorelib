@@ -1,5 +1,4 @@
 from distutils.core import setup
-
 import setuptools
 
 with open("README.md", "r") as fh:
@@ -7,11 +6,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="zaailabcorelib",
-    version="0.1.8.3",
+    version="0.1.8.5",
     author="ailabteam",
     author_email="thanhtri2502@gmail.com",
     include_package_data=True,
-    description="A Useful tools inside Zalo AILab Team",
+    description="A useful tools inside ZAI Lab",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
