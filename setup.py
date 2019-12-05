@@ -1,18 +1,16 @@
 from distutils.core import setup
-
 import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-
 setuptools.setup(
     name="zaailabcorelib",
-    version="0.1.8.2",
+    version="0.1.8.5",
     author="ailabteam",
     author_email="thanhtri2502@gmail.com",
     include_package_data=True,
-    description="A Useful tools inside Zalo AILab Team",
+    description="A useful tools inside ZAI Lab",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
@@ -21,7 +19,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    tests_require=["pytest",
-                    "mock"],
+    tests_require=["pytest", "mock"],
     test_suite="pytest",
 )

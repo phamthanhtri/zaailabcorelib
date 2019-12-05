@@ -20,7 +20,6 @@ class TFModelBase(object):
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')            
 
-
     def __get_io_nodes(self, input_names, output_names):
         input_nodes = []
         output_nodes = []

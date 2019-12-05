@@ -40,13 +40,11 @@ class Worker(threading.Thread):
                     "Exception while processing request")
                 callback(False, b'')
 
-
 WAIT_LEN = 0
 WAIT_MESSAGE = 1
 WAIT_PROCESS = 2
 SEND_ANSWER = 3
 CLOSED = 4
-
 
 def locked(func):
     """Decorator which locks self.lock."""
@@ -199,7 +197,6 @@ class Connection(object):
         """Return True if connection should be added to write list of select"""
         return self.status == SEND_ANSWER
 
-    # it's not necessary, but...
     @locked
     def is_readable(self):
         """Return True if connection should be added to read list of select"""
@@ -259,9 +256,7 @@ class THandlerPoolServer(object):
                             self.processor_cls, self.handler_cls)
             thread.setDaemon(True)
             thread.start()
-
             self.list_workers.append(thread)
-
         self.prepared = True
 
     def wake_up(self):
@@ -324,7 +319,6 @@ class THandlerPoolServer(object):
             if readable == self._read.fileno():
                 # don't care i just need to clean readable flag
                 self._read.recv(1024)
-
             elif readable == self.socket.handle.fileno():
                 try:
                     client = self.socket.accept()
@@ -334,11 +328,9 @@ class THandlerPoolServer(object):
                 except socket.error:
                     logger.exception('error while accepting')
             else:
-
                 connection = self.clients[readable]
                 if selected:
                     connection.read()
-
                 if connection.received:
                     connection.status = WAIT_PROCESS
                     msg = connection.received.popleft()

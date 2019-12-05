@@ -1,6 +1,6 @@
 import os
 
-def get_tf_env(gpu_id, mem_fraction):
+def get_tf_env(gpu_id=-1, mem_fraction=0):
     ''' Get Tensorflow environment
         Return:
             tf, config
@@ -15,7 +15,7 @@ def get_tf_env(gpu_id, mem_fraction):
     import tensorflow as tf
     # if tf.__version__.split('.')[0] == '2':
     #     tf = tf.compat.v1
-        
+
     config = tf.ConfigProto()
     if mem_fraction == 0:
         config.gpu_options.allow_growth = True
