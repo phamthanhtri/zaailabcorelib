@@ -12,7 +12,7 @@ straightforward as possible.
 
 - `zserver`: 
 
-    - `TModelPoolServer`:
+    - `TModelPoolServer`: 
 
 ### Changed
 
