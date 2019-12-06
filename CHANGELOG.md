@@ -3,12 +3,16 @@
 
 All notable changes to this project will be documented in this file.
   
-## [Unreleased] - 2019-12-05
+## [0.1.8.4] - 2019-12-7
  
 Here we write upgrading notes for brands. It's a team effort to make them as
 straightforward as possible.
  
 ### Added
+
+- `zserver`: 
+
+    - `TModelPoolServer`:
 
 ### Changed
 
