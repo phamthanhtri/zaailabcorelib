@@ -4,21 +4,16 @@ import select
 import socket
 import struct
 import threading
-
 from collections import deque
 from six.moves import queue
-
 from zaailabcorelib.thrift.transport import TTransport
 from zaailabcorelib.thrift.protocol.TBinaryProtocol import TBinaryProtocolFactory
-
 logger = logging.getLogger(__name__)
 
 __all__ = ['THandlerPoolServer']
 
-
 class Worker(threading.Thread):
     """Worker is a small helper to process incoming connection."""
-
     def __init__(self, thread_id, queue, processor_cls, handler_cls):
         threading.Thread.__init__(self)
         self.thread_id = thread_id
@@ -101,9 +96,7 @@ class Connection(object):
         self.status = WAIT_LEN
         self.len = 0
         self.received = deque()
-
         self._reading = Message(0, 4, True)
-
         self._rbuf = b''
         self._wbuf = b''
         self.lock = threading.Lock()
@@ -223,13 +216,13 @@ class THandlerPoolServer(object):
     def __init__(self,
                  handler_cls,
                  processor_cls,
-                 lsocket,
+                 socket,
                  inputProtocolFactory=None,
                  outputProtocolFactory=None,
                  threads=10):
         self.handler_cls = handler_cls
         self.processor_cls = processor_cls
-        self.socket = lsocket
+        self.socket = socket
         self.in_protocol = inputProtocolFactory or TBinaryProtocolFactory()
         self.out_protocol = outputProtocolFactory or self.in_protocol
         self.threads = int(threads)
@@ -242,7 +235,6 @@ class THandlerPoolServer(object):
 
     def setNumThreads(self, num):
         """Set the number of worker threads that should be created."""
-        # implement ThreadPool interface
         assert not self.prepared, "Can't change number of threads after start"
         self.threads = num
 
@@ -295,10 +287,8 @@ class THandlerPoolServer(object):
         for i, connection in list(self.clients.items()):
             if connection.is_readable():
                 readable.append(connection.fileno())
-
                 if connection.remaining or connection.received:
                     remaining.append(connection.fileno())
-
             if connection.is_writeable():
                 writable.append(connection.fileno())
             if connection.is_closed():
@@ -359,7 +349,6 @@ class THandlerPoolServer(object):
 
     def serve(self):
         """Serve requests.
-
         Serve requests forever, or until stop() is called.
         """
         self._stop = False
