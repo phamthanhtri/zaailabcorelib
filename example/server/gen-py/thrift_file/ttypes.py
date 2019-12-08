@@ -5,7 +5,6 @@
 #
 #  options string: py
 #
-
 from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
 from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
@@ -23,8 +22,6 @@ class TResult(object):
      - message
 
     """
-
-
     def __init__(self, errorCode=None, message=None,):
         self.errorCode = errorCode
         self.message = message
@@ -45,7 +42,8 @@ class TResult(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.message = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.message = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -55,7 +53,8 @@ class TResult(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            oprot.trans.write(oprot._fast_encode(
+                self, [self.__class__, self.thrift_spec]))
             return
         oprot.writeStructBegin('TResult')
         if self.errorCode is not None:
@@ -64,7 +63,8 @@ class TResult(object):
             oprot.writeFieldEnd()
         if self.message is not None:
             oprot.writeFieldBegin('message', TType.STRING, 2)
-            oprot.writeString(self.message.encode('utf-8') if sys.version_info[0] == 2 else self.message)
+            oprot.writeString(self.message.encode('utf-8')
+                              if sys.version_info[0] == 2 else self.message)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -82,6 +82,8 @@ class TResult(object):
 
     def __ne__(self, other):
         return not (self == other)
+
+
 all_structs.append(TResult)
 TResult.thrift_spec = (
     None,  # 0

@@ -58,7 +58,8 @@ class TModelPoolServerV1(TModelServer):
 
         self.list_model_config = kwargs.get("list_model_config", [])
         if len(self.list_model_config) == 0:
-            warnings.warn("`list_model_config` should not be empty", RuntimeWarning)
+            warnings.warn(
+                "`list_model_config` should not be empty", RuntimeWarning)
 
         self.serverTransport = kwargs.get("serverTransport")
         self.transportFactory = kwargs.get("transportFactory")
