@@ -23,7 +23,6 @@ class Iface(object):
         """
         Parameters:
          - value
-
         """
         pass
 
@@ -39,7 +38,6 @@ class Client(Iface):
         """
         Parameters:
          - value
-
         """
         self.send_pong(value)
         return self.recv_pong()
@@ -114,14 +112,12 @@ class Processor(Iface, TProcessor):
 
 # HELPER FUNCTIONS AND STRUCTURES
 
-
 class pong_args(object):
     """
     Attributes:
      - value
 
     """
-
 
     def __init__(self, value=None,):
         self.value = value
