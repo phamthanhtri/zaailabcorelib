@@ -40,18 +40,70 @@ class TModelServer():
         self.outputProtocolFactory = outputProtocolFactory
 
     def serve(self):
-        pass
+        raise NotImplementedError
 
 
-class TModelPoolServerV1(TModelServer):
+class ProcessWrk(Process):
+    def __init__(self, *args, **kwargs):
+        super(ProcessWrk, self).__init__()
+        self.handler_cls = kwargs.get('handler_cls')
+        self.processor_cls = kwargs.get('processor_cls')
+        self.connection_queue = kwargs.get('connection_queue')
+        self.model_config = kwargs.get('model_config')
+        self.inputTransportFactory = kwargs.get('inputTransportFactory')
+        self.outputTransportFactory = kwargs.get('outputTransportFactory')
+        self.inputProtocolFactory = kwargs.get('inputProtocolFactory')
+        self.outputProtocolFactory = kwargs.get('outputProtocolFactory')
+        self.logger = kwargs.get('logger')
+
+        
+    def run(self):
+        """Loop getting clients from the shared queue and process them"""
+        # Init Handler and Processor
+        self.handler = self.handler_cls(**self.model_config)
+        self.processor = self.processor_cls(self.handler)
+        self.logger.info("{}".format(id(self.processor)))
+
+        while True:
+            try:
+                client = self.connection_queue.get()
+                self.serve_client(client)
+            except (KeyboardInterrupt, SystemExit):
+                return 0
+            except Exception as e:
+                tb = traceback.format_exc()
+                self.logger.exception(tb)
+
+    def serve_client(self, client):
+        """Process input/output from a client for as long as possible"""
+        itrans = self.inputTransportFactory.getTransport(client)
+        otrans = self.outputTransportFactory.getTransport(client)
+        iprot = self.inputProtocolFactory.getProtocol(itrans)
+        oprot = self.outputProtocolFactory.getProtocol(otrans)
+
+        try:
+            while True:
+                self.processor.process(iprot, oprot)
+        except TTransportException:
+            pass
+        except Exception as e:
+            tb = traceback.format_exc()
+            self.logger.exception(tb)
+        itrans.close()
+        if otrans:
+            otrans.close()
+
+class TModelPoolServer(TModelServer):
     ''' A server runs a pool of multiple models to serve single request
         Written by CongVM
     '''
-
     def __init__(self, *args, **kwargs):
         self.logger = kwargs.get("logger", None)
         if self.logger is None:
+            warnings.warn(
+                "`logger is None` which may not print out logs ", RuntimeWarning)
             self.logger = logging.getLogger(__name__)
+
         self.logger.info("Using TModelPoolServerV1")
         self.handler_cls = kwargs.get("handler_cls")
         self.processor_cls = kwargs.get("processor_cls")
@@ -68,7 +120,7 @@ class TModelPoolServerV1(TModelServer):
         self.post_fork_callback = None
         self.connection_queue = Queue()
 
-        super(TModelPoolServerV1, self).__init__(
+        super(TModelPoolServer, self).__init__(
             serverTransport=self.serverTransport,
             transportFactory=self.transportFactory,
             protocolFactory=self.protocolFactory)
@@ -82,50 +134,23 @@ class TModelPoolServerV1(TModelServer):
             raise TypeError("This is not a callback!")
         self.post_fork_callback = callback
 
-    def worker_process(self, connection_queue, model_config):
-        """Loop getting clients from the shared queue and process them"""
-        handler = self.handler_cls(**model_config)
-        processor = self.processor_cls(handler)
-        if self.post_fork_callback:
-            self.post_fork_callback()
-        while True:
-            try:
-                client = connection_queue.get()
-                self.serve_client(processor, client)
-            except (KeyboardInterrupt, SystemExit):
-                return 0
-            except Exception as x:
-                tb = traceback.format_exc()
-                self.logger.exception(tb)
-
-    def serve_client(self, processor, client):
-        """Process input/output from a client for as long as possible"""
-        itrans = self.inputTransportFactory.getTransport(client)
-        otrans = self.outputTransportFactory.getTransport(client)
-        iprot = self.inputProtocolFactory.getProtocol(itrans)
-        oprot = self.outputProtocolFactory.getProtocol(otrans)
-        try:
-            while True:
-                processor.process(iprot, oprot)
-        except TTransportException:
-            pass
-        except Exception as x:
-            tb = traceback.format_exc()
-            self.logger.exception(tb)
-        itrans.close()
-        if otrans:
-            otrans.close()
-
     def serve(self):
         """Start a fixed number of workers and put into queue"""
         for model_config in self.list_model_config:
             try:
-                w = Process(target=self.worker_process, args=(
-                    self.connection_queue, model_config, ))
-                w.daemon = True
-                w.start()
-                self.workers.append(w)
-            except Exception as x:
+                wrk = ProcessWrk(handler_cls=self.handler_cls,
+                                 processor_cls=self.processor_cls,
+                                 connection_queue=self.connection_queue,
+                                 model_config=model_config,
+                                 inputTransportFactory=self.inputTransportFactory,
+                                 outputTransportFactory=self.outputTransportFactory,
+                                 inputProtocolFactory=self.inputProtocolFactory,
+                                 outputProtocolFactory=self.outputProtocolFactory,
+                                 logger=self.logger)
+                wrk.daemon = True
+                wrk.start()
+                self.workers.append(wrk)
+            except Exception as e:
                 tb = traceback.format_exc()
                 self.logger.exception(tb)
 
@@ -142,8 +167,3 @@ class TModelPoolServerV1(TModelServer):
             except Exception as e:
                 tb = traceback.format_exc()
                 self.logger.exception(tb)
-
-
-class TModelPoolServer(TModelPoolServerV1):
-    def __init__(self, *args, **kwargs):
-        super(TModelPoolServer, self).__init__(*args, **kwargs)
