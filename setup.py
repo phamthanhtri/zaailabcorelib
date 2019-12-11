@@ -6,9 +6,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="zaailabcorelib",
-    version="0.1.8.6",
+    version="0.1.8.7", # New version
     author="ailabteam",
-    author_email="thanhtri2502@gmail.com",
     include_package_data=True,
     description="A useful tools inside ZAI Lab",
     long_description=long_description,
