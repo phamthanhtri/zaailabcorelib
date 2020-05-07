@@ -6,20 +6,33 @@ from logging.handlers import TimedRotatingFileHandler
 
 from zaailabcorelib.zlogger.constant import DEV_FILENAME, PROD_FILENAME, STAG_FILENAME
 import traceback
+import warnings
 
 
-class Zlogger():
-    __instance = None
+class Singleton(type):
+    _instances = {}
 
-    @staticmethod
-    def get_logger():
-        if Zlogger.__instance is None:
-            Zlogger.__instance = Zlogger()
-        return Zlogger.__instance
+    def __call__(cls, *args, **kwargs):
+        if len(cls._instances) != 0:
+            warnings.warn(
+                "This instance is already created so re-use initialized parameters!")
+        if cls not in cls._instances:
+            cls._instances[cls] = super(
+                Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Zlogger(metaclass=Singleton):
+    @classmethod
+    def get_logger(cls,  *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = Singleton.__call__(cls, *args, **kwargs)
+        return cls._instances[cls]
 
     def __init__(self, project_name=None, config_dir='./conf'):
+        warnings.warn(
+            "`Zlogger has been deprecated from 0.1.9.2. Please, use `ZLogger` instead`")
         self._config_dir = config_dir
-        self._getConfigDirectory()
         try:
             env = os.environ['SERVICE_ENV_SETTING']
             assert env in ["DEVELOPMENT", "PRODUCTION", "STAGING"]
@@ -35,7 +48,9 @@ class Zlogger():
             self.conf = self._production()
 
         if project_name is None:
-            self.project_name = os.environ['NAME']
+            self.project_name = os.environ.get('SERVICE_NAME', None)
+            if self.project_name is None:
+                self.project_name = os.environ['NAME']
         else:
             self.project_name = project_name
 
@@ -51,7 +66,7 @@ class Zlogger():
 
         if self.log_dir == "":
             raise ValueError('Error: `log_dir` is expected to be NOT EMPTY')
-        
+
         self.log_dir = str(self.log_dir)  # convert it to str
         if not os.path.exists(self.log_dir):
             os.mkdir(self.log_dir)
@@ -75,33 +90,36 @@ class Zlogger():
             backupCount=10)
         logger = logging.getLogger('MainLogger_{}'.format(logger_name))
         logger.propagate = False
-        formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(filename)s-%(funcName)s-%(lineno)04d | %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s | %(levelname)-8s | %(filename)s-%(funcName)s-%(lineno)04d | %(message)s')
         logger_handler.setFormatter(formatter)
         logger.addHandler(logger_handler)
         return logger
 
     def _development(self):
+        path = os.path.join(self._config_dir, DEV_FILENAME)
+        self._check_exists(path)
         configParser = configparser.ConfigParser()
-        configParser.read(self._dev_config_paths)
+        configParser.read(path)
         return configParser
 
     def _staging(self):
+        path = os.path.join(self._config_dir, STAG_FILENAME)
+        self._check_exists(path)
         configParser = configparser.ConfigParser()
-        configParser.read(self._stag_config_paths)
+        configParser.read(path)
         return configParser
 
     def _production(self):
+        path = os.path.join(self._config_dir, PROD_FILENAME)
+        self._check_exists(path)
         configParser = configparser.ConfigParser()
-        configParser.read(self._prod_config_paths)
+        configParser.read(path)
         return configParser
 
-    def _getConfigDirectory(self):
-        self._dev_config_paths = os.path.join(self._config_dir, DEV_FILENAME)
-        self._prod_config_paths = os.path.join(self._config_dir, PROD_FILENAME)
-        self._stag_config_paths = os.path.join(self._config_dir, STAG_FILENAME)
-        for f in [self._dev_config_paths, self._prod_config_paths, self._stag_config_paths]:
-            if not os.path.exists(f):
-                raise FileNotFoundError("File not found: {}".format(f))
+    def _check_exists(self, path):
+        if not os.path.exists(path):
+            raise FileNotFoundError("File not found: {}".format(path))
 
     def info(self, msg):
         self.info_logger.info(msg)
@@ -114,3 +132,8 @@ class Zlogger():
 
     def exception(self, msg):
         self.error_logger.exception(msg)
+
+
+class ZLogger(Zlogger):
+    def __init__(self, project_name=None, config_dir='./conf'):
+        Zlogger.__init__(self, project_name, config_dir)

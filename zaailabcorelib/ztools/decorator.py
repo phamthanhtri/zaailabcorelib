@@ -45,6 +45,9 @@ def zlogging_deco(default_value, logger=None):
                 result = func(*args, **kwargs)
                 print_log("[{}][Result] - {} - log_id: {}".format(
                     func.__name__.upper(), result, log_id), log_level='info')
+                if type(result) != type(default_value):
+                    print_log("[{}][Result][WARNING] - {} - log_id: {}".format(
+                        func.__name__.upper(), result, log_id), log_level='info')
                 return result
             except:
                 print_log("[{}][Result] - {} - log_id: {}".format(func.__name__.upper(),

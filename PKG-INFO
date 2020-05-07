@@ -1,0 +1,31 @@
+Metadata-Version: 2.1
+Name: zaailabcorelib
+Version: 0.1.9.2
+Summary: A useful tools inside ZAI Lab
+Home-page: UNKNOWN
+Author: ailabteam
+License: UNKNOWN
+Description: # zaailabcorelib
+        
+        ## Introduction
+        
+        This is our `zaailabcorelib` tools implemented and used widely in ZAI Lab. 
+        
+        ## Compiling
+        
+        To compile and upload package to PyPi
+        
+        ```
+        python3 setup.py sdist bdist_wheel
+        python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*  --verbose
+        ```
+        
+        ## Contributors
+        
+        - [ 1 ] congvm - congvm.it@gmail.com
+        - [ 2 ] tript - thanhtri2502@gmail.com
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown

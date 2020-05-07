@@ -1,1 +1,1 @@
-from zaailabcorelib.zlogger.zlogger import Zlogger
+from zaailabcorelib.zlogger.zlogger import Zlogger, ZLogger

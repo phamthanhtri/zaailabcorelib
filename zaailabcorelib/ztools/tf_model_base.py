@@ -3,13 +3,14 @@ from .helper import get_tf_env
 
 
 class TFModelBase(object):
-    def __init__(self, input_names: list, output_names: list, model_path: str, gpu_id=-1, mem_fraction=0):
+    def __init__(self, input_names, output_names, model_path, gpu_id=-1, mem_fraction=0):
         self.model_path = model_path
         self.tf, self.config = get_tf_env(gpu_id=gpu_id, mem_fraction=mem_fraction)
         self.graph = self.tf.Graph()
         self.sess = tf.Session(graph=self.graph, config=self.config)
         self.__load_graph()
         self.input_nodes, self.output_nodes = self.__get_io_nodes(input_names, output_names)
+
 
     def __load_graph(self):
         with self.graph.as_default():

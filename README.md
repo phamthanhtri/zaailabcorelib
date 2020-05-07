@@ -4,12 +4,6 @@
 
 This is our `zaailabcorelib` tools implemented and used widely in ZAI Lab. 
 
-
-## Installation
-
-`pip install -U zaailabcorelib`
-
-
 ## Compiling
 
 To compile and upload package to PyPi
