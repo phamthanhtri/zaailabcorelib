@@ -10,6 +10,14 @@
           <option name="port" value="22" />
         </fileTransfer>
       </webServer>
+      <webServer id="4a471496-aefe-4065-9497-08779aaf1b4a" name="tinhdm19" url="http://10.40.34.19">
+        <fileTransfer host="10.40.34.19" port="22" rootFolder="/data/tinhdm" accessType="SFTP" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
