@@ -1,7 +1,7 @@
 import requests
 class LogClient:
 
-    def __init__(self, host, port, path="/write_log"):
+    def __init__(self, host, port, path="/log"):
         self.host = host
         self.port = str(port)
         self.path = path
