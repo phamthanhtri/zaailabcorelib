@@ -17,3 +17,4 @@ python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/* 
 
 - [ 1 ] congvm - congvm.it@gmail.com
 - [ 2 ] tript - thanhtri2502@gmail.com
+- [ 3 ] tript - minhtinh.1997.khmt@gmail.com
