@@ -25,5 +25,5 @@ class LogClient:
             'category': category,
             'log': log
                 }
-        res = grequests.post("http://"+self.host+":"+self.port+self.path, data)
+        res = grequests.post("http://"+self.host+":"+self.port+self.path, data = data)
         return res
