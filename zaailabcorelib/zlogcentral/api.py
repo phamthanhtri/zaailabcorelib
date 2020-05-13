@@ -15,7 +15,10 @@ class LogClient:
         self.port = str(port)
 
     def __send_request(self, param):
-        requests.post(param[0], data=param[1], timeout=1)
+        try:
+            requests.post(param[0], data=param[1], timeout=1)
+        except:
+            pass
 
     def __general_log(self, category, log, path):
         local_ip = get_local_ip()
