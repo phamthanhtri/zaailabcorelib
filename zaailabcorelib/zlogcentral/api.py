@@ -10,8 +10,12 @@ def get_local_ip():
     local_ip="10.40.34."+local_ip[-2:]
     return local_ip
 def get_name_of_folder():
-    path = os.getcwd()
-    folder = os.path.basename(path)
+    env_name = os.getenv('NAME')
+    if(env_name is None):
+        path = os.getcwd()
+        folder = os.path.basename(path)
+    else:
+        folder = env_name
     return folder
 class LogClient:
 
