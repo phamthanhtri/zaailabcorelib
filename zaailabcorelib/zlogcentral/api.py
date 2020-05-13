@@ -1,7 +1,8 @@
-import grequests
 import socket
 import time
 import requests
+from grequests import Pool
+request_pool = Pool(20)
 def get_local_ip():
     local_ip = socket.gethostname()
     local_ip="10.40.34."+local_ip[-2:]
@@ -14,7 +15,7 @@ class LogClient:
         self.port = str(port)
 
     def __send_request(self, param):
-        requests.post(param[0], data=param[1])
+        requests.post(param[0], data=param[1], timeout=1)
 
     def __general_log(self, category, log, path):
         local_ip = get_local_ip()
@@ -27,7 +28,6 @@ class LogClient:
         param =[]
         param.append("http://" + self.host + ":" + self.port + path)
         param.append(data)
-        pool = grequests.Pool(1)
-        pool.spawn(self.__send_request,param)
+        request_pool.spawn(self.__send_request,param)
     def log(self, category, log):
         self.__general_log(category, log, "/log")
