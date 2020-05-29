@@ -17,6 +17,33 @@ def get_name_of_folder():
     else:
         folder = env_name
     return folder
+
+class LogJob():
+    def __init__(self, uid, cmd):
+        self.uid = uid
+        self.cmd = cmd
+        self.start_time = int(time.time()*1000)
+        self.param = {}
+
+    def __init__(self):
+        self.uid = 0
+        self.cmd = 0
+        self.start_time = int(time.time() * 1000)
+        self.param = {}
+
+    def set_dict_param(self, param):
+        self.param.update(param)
+    def set_param(self, key, value):
+        self.param[key]=value
+    def get_start_time(self):
+        return self.start_time
+    def get_uid(self):
+        return self.uid
+    def get_cmd(self):
+        return self.cmd
+    def get_json_string(self):
+        return json.dumps(self.param)
+
 class LogClient:
 
     def __init__(self, host, port):
@@ -51,4 +78,7 @@ class LogClient:
         param.append(data)
         request_pool.spawn(self.__send_request,param)
     def log(self, category, log):
-        self.__general_log(category, log, "/log")
+        log.set_param("uid", log.get_uid())
+        log.set_param("cmd", log.get_cmd())
+        log.set_param("execute_time", int(time.time()*1000)-log.get_start_time())
+        self.__general_log(category, log.get_json_string(), "/log")
