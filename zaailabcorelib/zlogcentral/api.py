@@ -1,9 +1,16 @@
 import socket
 import time
 import requests
-from grequests import Pool
+from multiprocessing import Pool
 import os
 import json
+
+
+def send_request_async(param):
+    try:
+        requests.post(param[0], data=param[1], timeout=1)
+    except:
+        pass
 request_pool = Pool(20)
 def get_local_ip():
     local_ip = socket.gethostname()
@@ -19,16 +26,10 @@ def get_name_of_folder():
     return folder
 
 class LogJob():
-    def __init__(self, uid, cmd):
+    def __init__(self, uid=0, cmd=0):
         self.uid = uid
         self.cmd = cmd
         self.start_time = int(time.time()*1000)
-        self.param = {}
-
-    def __init__(self):
-        self.uid = 0
-        self.cmd = 0
-        self.start_time = int(time.time() * 1000)
         self.param = {}
 
     def set_dict_param(self, param):
@@ -50,11 +51,6 @@ class LogClient:
         self.host = host
         self.port = str(port)
 
-    def __send_request(self, param):
-        try:
-            requests.post(param[0], data=param[1], timeout=1)
-        except:
-            pass
 
     def __general_log(self, category, log, path):
         project = get_name_of_folder()
@@ -76,7 +72,7 @@ class LogClient:
         param =[]
         param.append("http://" + self.host + ":" + self.port + path)
         param.append(data)
-        request_pool.spawn(self.__send_request,param)
+        request_pool.apply_async(send_request_async,(param,))
     def log(self, category, log):
         """
             log function
