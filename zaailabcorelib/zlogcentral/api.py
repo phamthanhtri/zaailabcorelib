@@ -78,7 +78,22 @@ class LogClient:
         param.append(data)
         request_pool.spawn(self.__send_request,param)
     def log(self, category, log):
-        log.set_param("uid", log.get_uid())
-        log.set_param("cmd", log.get_cmd())
-        log.set_param("execute_time", int(time.time()*1000)-log.get_start_time())
-        self.__general_log(category, log.get_json_string(), "/log")
+        """
+            log function
+
+            :param category: category for the project:
+            :param log has 2 type:
+                string: old flow. Just send user's json string
+                LogJob: new flow. Send LogJob object with cmd, uid, execute_time are added to data
+        """
+        if (type(log) == LogJob):
+            log_job = True
+        else:
+            log_job = False
+        if(log_job):
+            log.set_param("uid", log.get_uid())
+            log.set_param("cmd", log.get_cmd())
+            log.set_param("execute_time", int(time.time()*1000)-log.get_start_time())
+            self.__general_log(category, log.get_json_string(), "/log")
+        else:
+            self.__general_log(category, log, "/log")
