@@ -81,7 +81,7 @@ class LogClient:
         """
             log function
 
-            :param category: category for the project:
+            :param category: category for the project (Ex : ZALO_FACE)
             :param log has 2 type:
                 string: old flow. Just send user's json string
                 LogJob: new flow. Send LogJob object with cmd, uid, execute_time are added to data

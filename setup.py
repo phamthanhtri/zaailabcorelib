@@ -13,7 +13,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="zaailabcorelib",
-    version="0.2.0.8",
+    version="0.2.0.9",
     author="ailabteam",
     include_package_data=True,
     description="A useful tools inside ZAI Lab",
