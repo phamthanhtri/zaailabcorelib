@@ -1,7 +1,7 @@
 import socket
 import time
 import requests
-from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool
 import os
 import json
 
@@ -11,7 +11,7 @@ def send_request_async(param):
         requests.post(param[0], data=param[1], timeout=1)
     except:
         pass
-request_pool = Pool(20)
+request_pool = ThreadPool(20)
 def get_local_ip():
     local_ip = socket.gethostname()
     local_ip="10.40.34."+local_ip[-2:]
