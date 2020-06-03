@@ -1,7 +1,7 @@
 import socket
 import time
 import requests
-from multiprocessing.pool import ThreadPool
+from concurrent.futures import ThreadPoolExecutor
 import os
 import json
 
@@ -11,7 +11,7 @@ def send_request_async(param):
         requests.post(param[0], data=param[1], timeout=1)
     except:
         pass
-request_pool = ThreadPool(20)
+request_pool = ThreadPoolExecutor(max_workers=20)
 def get_local_ip():
     local_ip = socket.gethostname()
     local_ip="10.40.34."+local_ip[-2:]
@@ -52,7 +52,7 @@ class LogClient:
         self.port = str(port)
 
 
-    def __general_log(self, category, log, path):
+    def __general_log(self, category, log, path, sync):
         project = get_name_of_folder()
         local_ip = get_local_ip()
         created_time = int(time.time()*1000)
@@ -69,11 +69,21 @@ class LogClient:
             'category': category,
             'log': log
         }
-        param =[]
-        param.append("http://" + self.host + ":" + self.port + path)
-        param.append(data)
-        request_pool.apply_async(send_request_async,(param,))
-    def log(self, category, log):
+
+        if(sync):
+            try:
+
+                return requests.post("http://" + self.host + ":" + self.port + path, data=data, timeout=1)
+            except:
+                return None
+
+        else:
+            param = []
+            param.append("http://" + self.host + ":" + self.port + path)
+            param.append(data)
+            request_pool.submit(send_request_async,(param))
+            return None
+    def log(self, category, log, sync=False):
         """
             log function
 
@@ -90,6 +100,6 @@ class LogClient:
             log.set_param("uid", log.get_uid())
             log.set_param("cmd", log.get_cmd())
             log.set_param("execute_time", int(time.time()*1000)-log.get_start_time())
-            self.__general_log(category, log.get_json_string(), "/log")
+            return self.__general_log(category, log.get_json_string(), "/log", sync)
         else:
-            self.__general_log(category, log, "/log")
+            return self.__general_log(category, log, "/log", sync)
