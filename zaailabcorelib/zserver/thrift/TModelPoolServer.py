@@ -1,4 +1,6 @@
 
+import asyncio
+from threading import Thread
 import logging
 import select
 import socket
@@ -27,9 +29,18 @@ WAIT_PROCESS = 2
 SEND_ANSWER = 3
 CLOSED = 4
 
-from threading import Thread
 
-class WorkerBase():
+class ThreadWkr(Thread):
+    def __init__(self, *args, **kwargs):
+        super(ThreadWkr, self).__init__()
+        self._handler_cls = kwargs.get('handler_cls')
+        self._processor_cls = kwargs.get('processor_cls')
+        self._tasks_queue = kwargs.get('tasks_queue')
+        self._callback_queue = kwargs.get('callback_queue')
+        self._model_config = kwargs.get('model_config')
+        self._worker_id = kwargs.get('worker_id')
+        print("Start Thread Worker:", self._worker_id)
+
     def run(self):
         """Loop getting clients from the shared queue and process them"""
         # Init Handler and Processor
@@ -43,27 +54,17 @@ class WorkerBase():
             try:
                 iprot, oprot, otrans, rsocket_fileno = self._tasks_queue.get()
                 self._processor.process(iprot, oprot)
-                self._callback_queue.put({"ok_all": True, 
-                                        "message": otrans.getvalue(), 
-                                        "rsocket_fileno": rsocket_fileno})
+                self._callback_queue.put({"ok_all": True,
+                                          "message": otrans.getvalue(),
+                                          "rsocket_fileno": rsocket_fileno})
             except Exception as e:
                 print(traceback.format_exc())
-                self._callback_queue.put({"ok_all": False, 
-                                        "message": b"", 
-                                        "rsocket_fileno": rsocket_fileno})
+                self._callback_queue.put({"ok_all": False,
+                                          "message": b"",
+                                          "rsocket_fileno": rsocket_fileno})
 
-class ThreadWkr(Thread, WorkerBase):
-    def __init__(self, *args, **kwargs):
-        super(ThreadWkr, self).__init__()
-        self._handler_cls = kwargs.get('handler_cls')
-        self._processor_cls = kwargs.get('processor_cls')
-        self._tasks_queue = kwargs.get('tasks_queue')
-        self._callback_queue = kwargs.get('callback_queue')
-        self._model_config = kwargs.get('model_config')
-        self._worker_id = kwargs.get('worker_id')
-        print("Start Thread Worker:", self._worker_id)
 
-class ProcessWrk(Process, WorkerBase):
+class ProcessWrk(Process):
     def __init__(self, *args, **kwargs):
         super(ProcessWrk, self).__init__()
         self._handler_cls = kwargs.get('handler_cls')
@@ -74,8 +75,32 @@ class ProcessWrk(Process, WorkerBase):
         self._worker_id = kwargs.get('worker_id')
         print("Start Process Worker:", self._worker_id)
 
+    def run(self):
+        """Loop getting clients from the shared queue and process them"""
+        # Init Handler and Processor
+        if len(self._model_config) == 0:
+            self._handler = self._handler_cls()
+        else:
+            self._handler = self._handler_cls(**self._model_config)
+        self._processor = self._processor_cls(self._handler)
+
+        while True:
+            try:
+                iprot, oprot, otrans, rsocket_fileno = self._tasks_queue.get()
+                self._processor.process(iprot, oprot)
+                self._callback_queue.put({"ok_all": True,
+                                          "message": otrans.getvalue(),
+                                          "rsocket_fileno": rsocket_fileno})
+            except Exception as e:
+                print(traceback.format_exc())
+                self._callback_queue.put({"ok_all": False,
+                                          "message": b"",
+                                          "rsocket_fileno": rsocket_fileno})
+
+
 def locked(func):
     """Decorator which locks self.lock."""
+
     def nested(self, *args, **kwargs):
         self.lock.acquire()
         try:
@@ -87,6 +112,7 @@ def locked(func):
 
 def socket_exception(func):
     """Decorator close object on socket.error."""
+
     def read(self, *args, **kwargs):
         try:
             return func(self, *args, **kwargs)
@@ -94,6 +120,7 @@ def socket_exception(func):
             logger.debug('ignoring socket exception', exc_info=True)
             self.close()
     return read
+
 
 class Message(object):
     def __init__(self, offset, len_, header):
@@ -106,6 +133,7 @@ class Message(object):
     def end(self):
         return self.offset + self.len
 
+
 class ConnectionStateChanger(threading.Thread):
     def __init__(self, queue, clients):
         threading.Thread.__init__(self)
@@ -116,9 +144,10 @@ class ConnectionStateChanger(threading.Thread):
         while True:
             callback_state = self.callback_queue.get()
             connection = self.clients[callback_state['rsocket_fileno']]
-            connection.ready(callback_state['ok_all'], callback_state['message'])
-            
-import asyncio
+            connection.ready(
+                callback_state['ok_all'], callback_state['message'])
+
+
 class ConnectionStateChangerAsyncIo():
     def __init__(self, queue, clients):
         self.callback_queue = queue
@@ -128,8 +157,9 @@ class ConnectionStateChangerAsyncIo():
         while True:
             callback_state = self.callback_queue.get()
             connection = self.clients[callback_state['rsocket_fileno']]
-            connection.ready(callback_state['ok_all'], callback_state['message'])
-    
+            connection.ready(
+                callback_state['ok_all'], callback_state['message'])
+
     def start(self):
         self.loop = asyncio.get_event_loop()
         self.loop.run_in_executor(executor=None, func=self._asyncio_start)
@@ -147,9 +177,10 @@ class Connection(object):
                         of answer).
         CLOSED --- socket was closed and connection should be deleted.
     """
+
     def __init__(self, new_socket, wake_up):
         self.socket = new_socket
-        self.socket.setblocking(False) 
+        self.socket.setblocking(False)
         self.status = WAIT_LEN
         self.len = 0
         self.received = deque()
@@ -177,7 +208,8 @@ class Connection(object):
                 if self.status != WAIT_LEN or self._rbuf:
                     logger.error('could not read frame from socket')
                 else:
-                    logger.debug('read zero length. client might have disconnected')
+                    logger.debug(
+                        'read zero length. client might have disconnected')
                 self.close()
             while len(self._rbuf) >= self._reading.end:
                 if self._reading.is_header:
@@ -201,7 +233,7 @@ class Connection(object):
         """Writes data from socket and switch state."""
         assert self.status == SEND_ANSWER
         sent = self.socket.send(self._wbuf)
-        if sent == len(self._wbuf): # 
+        if sent == len(self._wbuf):
             self.status = WAIT_LEN
             self._wbuf = b''
             self.len = 0
@@ -268,19 +300,19 @@ class TModelPoolServer(object):
         self.handler_cls = handler_cls
         self.processor_cls = processor_cls
         self.tsocket = tsocket
-        self.transport_factory = kwargs.get('transport_factory') # The default is FrameTransport
+        self.transport_factory = kwargs.get(
+            'transport_factory')  # The default is FrameTransport
         self.protocol_factory = protocol_factory
         self.list_model_config = kwargs.get("list_model_config", [])
-        self.clients = {} # Store client connection
+        self.clients = {}  # Store client connection
         self.callback_queue = Queue()
         self._read, self._write = socket.socketpair()
-        self.list_task_queue = [] # Distribute task to Worker
+        self.list_task_queue = []  # Distribute task to Worker
         self.workers = []
 
         self.prepared = False
         self._stop = False
-        
-        
+
     def prepare(self):
         """Prepares server for serve requests."""
         if self.prepared:
@@ -297,12 +329,12 @@ class TModelPoolServer(object):
             self.list_task_queue.append(tasks_queue)
             try:
                 wrk = self.worker_cls(handler_cls=self.handler_cls,
-                                 processor_cls=self.processor_cls,
-                                 connection_queue=tasks_queue,
-                                 model_config=model_config,
-                                 callback_queue=self.callback_queue, 
-                                 tasks_queue=tasks_queue, 
-                                 worker_id=wrk_id)
+                                      processor_cls=self.processor_cls,
+                                      connection_queue=tasks_queue,
+                                      model_config=model_config,
+                                      callback_queue=self.callback_queue,
+                                      tasks_queue=tasks_queue,
+                                      worker_id=wrk_id)
                 wrk.daemon = True
                 wrk.start()
                 self.workers.append(wrk)
@@ -387,13 +419,15 @@ class TModelPoolServer(object):
                 if connection.received:
                     connection.status = WAIT_PROCESS
                     msg = connection.received.popleft()
-                    itransport = TTransport.TMemoryBuffer(msg.buffer, msg.offset)
+                    itransport = TTransport.TMemoryBuffer(
+                        msg.buffer, msg.offset)
                     otransport = TTransport.TMemoryBuffer()
                     iprot = self.protocol_factory.getProtocol(itransport)
                     oprot = self.protocol_factory.getProtocol(otransport)
-                    
+
                     rand_idx = random.randint(0, len(self.list_task_queue) - 1)
-                    self.list_task_queue[rand_idx].put([iprot, oprot, otransport, readable])
+                    self.list_task_queue[rand_idx].put(
+                        [iprot, oprot, otransport, readable])
 
         for writeable in wset:
             self.clients[writeable].write()
