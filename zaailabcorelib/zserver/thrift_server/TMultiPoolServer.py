@@ -12,15 +12,10 @@ from collections import deque
 from six.moves import queue
 from zaailabcorelib.thrift.transport import TTransport
 from zaailabcorelib.thrift.protocol.TBinaryProtocol import TBinaryProtocolFactory
+from .utils import current_milli_time, current_nano_time
 logger = logging.getLogger(__name__)
 
 __all__ = ['TMultiPoolServer', 'TModelBase', 'THandlerBase']
-
-
-def current_milli_time(): return int(round(time.time() * 1000))
-
-
-def current_nano_time(): return int(round(time.time() * 1000000))
 
 
 class TModelBase(multiprocessing.Process):
@@ -67,7 +62,8 @@ class TModelBase(multiprocessing.Process):
         while True:
             while True:
                 try:
-                    [request_id, inp] = self.inference_queue.get(block=False) #, timeout=self.batch_timeout_in_sec)
+                    # , timeout=self.batch_timeout_in_sec)
+                    [request_id, inp] = self.inference_queue.get(block=False)
                     list_inference.append(inp)
                     list_request_id.append(request_id)
                     if (len(list_inference) < self.batch_infer_size):
@@ -77,9 +73,10 @@ class TModelBase(multiprocessing.Process):
             if len(list_inference) != 0:
                 list_result = self.predict(list_inference)
                 for [_id, res] in zip(list_request_id, list_result):
-                    self.result_dict.update({_id:res})
+                    self.result_dict.update({_id: res})
                 list_request_id.clear()
                 list_inference.clear()
+
 
 class THandlerBase():
     def __init__(self, inference_queue, result_dict):
@@ -248,7 +245,6 @@ class Connection(object):
             self.len = 0
         else:
             self._wbuf = self._wbuf[sent:]
-            
 
     @locked
     def ready(self, all_ok, message):
