@@ -1,9 +1,8 @@
 import sys
 sys.path.append("..")
 sys.path.append(".")
-import os
-os.environ['SERVICE_ENV_SETTING'] = str.upper(sys.argv[1])
 from zaailabcorelib.http_server import Server
+
 from flask import request, jsonify
 
 def test_func():
