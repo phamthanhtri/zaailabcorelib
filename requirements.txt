@@ -5,6 +5,8 @@ matplotlib
 scipy
 Image
 numpy
+waitress
+flask-cors
 # client-side requirements, pretty light-weight right?
 # tensorflow >= 1.10.0
 # tensorflow-gpu >= 1.10.0  # GPU version of TensorFlow.

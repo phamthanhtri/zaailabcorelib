@@ -1,6 +1,7 @@
 from waitress import serve
 import zaailabcorelib.http_server.setting as setting
 from flask import Flask
+from flask_cors import CORS
 
 
 class Server:
@@ -8,6 +9,7 @@ class Server:
         print(list_dict)
         self.name = name
         self.app = Flask(name)
+        CORS(self.app)
         for i in range(len(list_dict)):
             self.app.add_url_rule(list_dict[i]["path"], "function_"+list_dict[i]["path"], list_dict[i]["function"], methods=list_dict[i]["methods"])
 
