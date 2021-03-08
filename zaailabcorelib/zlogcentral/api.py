@@ -52,7 +52,7 @@ class LogClient:
         self.port = str(port)
 
 
-    def __general_log(self, category, log, path, sync):
+    def __general_log(self, category, log, path, sync, type_log):
         project = get_name_of_folder()
         local_ip = get_local_ip()
         created_time = int(time.time()*1000)
@@ -67,7 +67,8 @@ class LogClient:
         log = json.dumps(log_json)
         data = {
             'category': category,
-            'log': log
+            'log': log,
+            'type': type_log
         }
 
         if(sync):
@@ -83,7 +84,7 @@ class LogClient:
             param.append(data)
             request_pool.submit(send_request_async,(param))
             return None
-    def log(self, category, log, sync=False):
+    def log(self, category, log, sync=False, type_log="result"):
         """
             log function
 
@@ -93,13 +94,9 @@ class LogClient:
                 LogJob: new flow. Send LogJob object with cmd, uid, execute_time are added to data
         """
         if (type(log) == LogJob):
-            log_job = True
-        else:
-            log_job = False
-        if(log_job):
             log.set_param("uid", log.get_uid())
             log.set_param("cmd", log.get_cmd())
             log.set_param("execute_time", int(time.time()*1000)-log.get_start_time())
-            return self.__general_log(category, log.get_json_string(), "/log", sync)
+            return self.__general_log(category, log.get_json_string(), "/log", sync, type_log)
         else:
-            return self.__general_log(category, log, "/log", sync)
+            return self.__general_log(category, log, "/log", sync, type_log)
